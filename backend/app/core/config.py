@@ -22,6 +22,10 @@ class Settings(BaseSettings):
 
     STRIPE_SECRET_KEY: str = ""
     STRIPE_WEBHOOK_SECRET: str = ""
+    STRIPE_PRICE_SPARK_MONTHLY: str = ""
+    STRIPE_PRICE_CREATOR_MONTHLY: str = ""
+    STRIPE_PRICE_ARTIST_MONTHLY: str = ""
+    STRIPE_PRICE_STUDIO_PRO_MONTHLY: str = ""
 
     RAIN_NORMALIZATION_VALIDATED: bool = False
     ANTHROPIC_API_KEY: str = ""

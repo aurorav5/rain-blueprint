@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi import WebSocket, WebSocketDisconnect
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from uuid import UUID
@@ -6,6 +7,8 @@ from app.core.database import get_db
 from app.api.dependencies import get_current_user, CurrentUser
 from app.models.session import Session as MasteringSession
 from app.schemas.session import SessionResponse
+import json
+import asyncio
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 
@@ -26,3 +29,56 @@ async def get_session(
     if not session:
         raise HTTPException(404, detail={"code": "RAIN-E100", "message": "Session not found"})
     return SessionResponse.model_validate(session)
+
+
+@router.websocket("/{session_id}/status")
+async def session_status_ws(
+    websocket: WebSocket,
+    session_id: UUID,
+    token: str,
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    """Real-time session status via WebSocket. Poll DB every second until terminal state."""
+    from app.core.security import decode_token
+    from app.models.session import Session as MasteringSession
+    from sqlalchemy import select
+
+    try:
+        payload = decode_token(token)
+        user_id = UUID(payload["sub"])
+    except Exception:
+        await websocket.close(code=4001)
+        return
+
+    await websocket.accept()
+    terminal = {"complete", "failed"}
+
+    try:
+        while True:
+            result = await db.execute(
+                select(MasteringSession).where(
+                    MasteringSession.id == session_id,
+                    MasteringSession.user_id == user_id,
+                )
+            )
+            session = result.scalar_one_or_none()
+            if not session:
+                await websocket.send_json({"error": "RAIN-E100", "message": "Session not found"})
+                break
+
+            await websocket.send_json({
+                "session_id": str(session_id),
+                "status": session.status,
+                "output_lufs": float(session.output_lufs) if session.output_lufs is not None else None,
+                "output_true_peak": float(session.output_true_peak) if session.output_true_peak is not None else None,
+                "rain_score": session.rain_score,
+                "error_code": session.error_code,
+                "error_detail": session.error_detail,
+            })
+
+            if session.status in terminal:
+                break
+
+            await asyncio.sleep(1)
+    except WebSocketDisconnect:
+        pass

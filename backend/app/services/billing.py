@@ -2,6 +2,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.models.subscription import Subscription
 from uuid import UUID
+import structlog
+
+logger = structlog.get_logger()
 
 
 async def get_current_tier(user_id: UUID, db: AsyncSession) -> str:

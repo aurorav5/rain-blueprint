@@ -3,6 +3,9 @@ from __future__ import annotations
 from xml.etree.ElementTree import Element, SubElement, tostring, indent
 from datetime import datetime, timezone
 from typing import Optional
+import structlog
+
+logger = structlog.get_logger()
 import uuid
 
 

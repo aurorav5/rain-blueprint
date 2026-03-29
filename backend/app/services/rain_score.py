@@ -2,6 +2,9 @@
 from __future__ import annotations
 import numpy as np
 from typing import Optional
+import structlog
+
+logger = structlog.get_logger()
 
 # Platform targets (authoritative — mirrors heuristics.py)
 PLATFORM_TARGETS: dict[str, dict] = {

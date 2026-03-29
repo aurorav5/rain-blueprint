@@ -3,6 +3,9 @@ from __future__ import annotations
 import random
 import string
 from datetime import datetime
+import structlog
+
+logger = structlog.get_logger()
 from app.core.config import settings
 
 

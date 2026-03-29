@@ -3,6 +3,9 @@ from __future__ import annotations
 from io import BytesIO
 from typing import Tuple
 import numpy as np
+import structlog
+
+logger = structlog.get_logger()
 
 
 def extract_mel_spectrogram(

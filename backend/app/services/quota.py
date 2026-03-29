@@ -3,6 +3,9 @@ from sqlalchemy import select
 from fastapi import HTTPException
 from datetime import datetime, timezone, timedelta
 from uuid import UUID
+import structlog
+
+logger = structlog.get_logger()
 import calendar
 from app.models.quota import UsageQuota
 

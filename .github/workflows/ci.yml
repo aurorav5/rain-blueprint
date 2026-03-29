@@ -1,0 +1,82 @@
+name: RAIN CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: rain_app
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: rain_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install deps
+        run: pip install -r backend/requirements.txt
+      - name: Run migrations
+        run: alembic upgrade head
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql+asyncpg://rain_app:testpassword@localhost:5432/rain_test
+      - name: Run tests
+        run: pytest backend/tests/ -v --tb=short
+        env:
+          RAIN_ENV: development
+          DATABASE_URL: postgresql+asyncpg://rain_app:testpassword@localhost:5432/rain_test
+          REDIS_URL: redis://localhost:6379/0
+          JWT_SECRET_KEY: test_secret
+          S3_ACCESS_KEY: test
+          S3_SECRET_KEY: test
+
+  frontend-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install deps
+        run: npm ci
+        working-directory: frontend
+      - name: Type check
+        run: npm run typecheck
+        working-directory: frontend
+      - name: Build
+        run: npm run build
+        working-directory: frontend
+
+  dsp-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install CMake + deps
+        run: sudo apt-get install -y cmake build-essential libfftw3-dev
+      - name: Build
+        run: |
+          mkdir -p rain-dsp/build
+          cd rain-dsp/build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+          make -j$(nproc)
+      - name: Test
+        run: ctest --test-dir rain-dsp/build -V

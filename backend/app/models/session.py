@@ -33,6 +33,8 @@ class Session(Base):
     wasm_binary_hash: Mapped[str] = mapped_column(String, nullable=False)
     rainnet_model_version: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     processing_params: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
+    ai_generated: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    ai_source: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     error_code: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     error_detail: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

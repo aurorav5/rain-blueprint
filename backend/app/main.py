@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.observability import setup_observability
-from app.api.routes import auth, upload, billing, sessions, download, aie, distribution
+from app.api.routes import auth, upload, billing, sessions, download, aie, distribution, suno_import, score
 
 app = FastAPI(
     title="RAIN API",
@@ -28,6 +28,8 @@ app.include_router(sessions.router, prefix="/api/v1")
 app.include_router(download.router, prefix="/api/v1")
 app.include_router(aie.router, prefix="/api/v1")
 app.include_router(distribution.router, prefix="/api/v1")
+app.include_router(suno_import.router, prefix="/api/v1")
+app.include_router(score.router, prefix="/api/v1")
 
 
 @app.get("/health")

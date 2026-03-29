@@ -1,0 +1,62 @@
+{
+  "__inputs": [],
+  "__requires": [
+    {"type": "grafana", "id": "grafana", "name": "Grafana", "version": "10.0.0"},
+    {"type": "datasource", "id": "prometheus", "name": "Prometheus", "version": "1.0.0"}
+  ],
+  "annotations": {"list": []},
+  "description": "RAIN platform overview dashboard",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "id": 1,
+      "title": "Session Creation Rate",
+      "type": "timeseries",
+      "targets": [{"expr": "rate(rain_sessions_created_total[5m])", "legendFormat": "{{tier}} / {{platform}}"}]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "id": 2,
+      "title": "Render Duration P95",
+      "type": "timeseries",
+      "targets": [{"expr": "histogram_quantile(0.95, rate(rain_render_duration_seconds_bucket[5m]))", "legendFormat": "p95 {{source}}"}]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "id": 3,
+      "title": "LUFS Deviation Distribution",
+      "type": "timeseries",
+      "targets": [{"expr": "histogram_quantile(0.95, rate(rain_render_lufs_error_lu_bucket[5m]))", "legendFormat": "p95 LUFS error"}]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"h": 8, "w": 6, "x": 12, "y": 8},
+      "id": 4,
+      "title": "Active Sessions",
+      "type": "stat",
+      "targets": [{"expr": "rain_active_sessions", "legendFormat": "Active"}]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"h": 8, "w": 6, "x": 18, "y": 8},
+      "id": 5,
+      "title": "Normalization Gate",
+      "type": "stat",
+      "targets": [{"expr": "rain_normalization_gate", "legendFormat": "VALIDATED"}]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 37,
+  "tags": ["rain", "overview"],
+  "title": "RAIN Overview",
+  "uid": "rain-overview-v1",
+  "version": 1
+}

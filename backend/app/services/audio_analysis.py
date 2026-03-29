@@ -45,3 +45,22 @@ def extract_mel_spectrogram(
     mel_norm = (mel_db - mel_min) / (mel_max - mel_min + 1e-8)
 
     return mel_norm.astype(np.float32)[:, :n_frames], duration, float(sr)
+
+
+async def measure_lufs_true_peak(audio_data: bytes) -> tuple[float, float]:
+    """
+    Measure integrated LUFS and true peak from raw audio bytes.
+    Returns (integrated_lufs, true_peak_dbtp).
+    Uses pyloudnorm for LUFS and soundfile for peak measurement.
+    """
+    import soundfile as sf
+    import pyloudnorm as pyln
+    import numpy as np
+
+    audio, sr = sf.read(BytesIO(audio_data), dtype="float64", always_2d=True)
+    meter = pyln.Meter(sr)  # BS.1770-4
+    loudness = meter.integrated_loudness(audio)
+    # True peak: max absolute value across all samples, converted to dBFS
+    true_peak_linear = float(np.max(np.abs(audio)))
+    true_peak_dbtp = 20.0 * np.log10(true_peak_linear) if true_peak_linear > 0 else -120.0
+    return float(loudness), float(true_peak_dbtp)

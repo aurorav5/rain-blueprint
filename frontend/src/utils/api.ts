@@ -62,5 +62,6 @@ export const api = {
       return request<{ id: string; status: string }>('/sessions/', { method: 'POST', body: fd }, true)
     },
     get: (id: string) => request<{ id: string; status: string; output_lufs?: number }>(`/sessions/${id}`),
+    download: (id: string) => `/api/v1/sessions/${id}/download`,
   },
 }

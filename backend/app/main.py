@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.observability import setup_observability
+from app.api.routes import auth, upload, billing, sessions, download
 
 app = FastAPI(
     title="RAIN API",
@@ -19,6 +20,12 @@ app.add_middleware(
 )
 
 setup_observability(app)
+
+app.include_router(auth.router, prefix="/api/v1")
+app.include_router(upload.router, prefix="/api/v1")
+app.include_router(billing.router, prefix="/api/v1")
+app.include_router(sessions.router, prefix="/api/v1")
+app.include_router(download.router, prefix="/api/v1")
 
 
 @app.get("/health")

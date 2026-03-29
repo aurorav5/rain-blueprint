@@ -28,7 +28,7 @@ async def get_session(
     )
     session = result.scalar_one_or_none()
     if not session:
-        raise HTTPException(404, detail={"code": "RAIN-E100", "message": "Session not found"})
+        raise HTTPException(404, detail={"code": "RAIN-E200", "message": "Session not found"})
     return SessionResponse.model_validate(session)
 
 
@@ -102,14 +102,14 @@ async def get_rain_cert(
     )
     session = result.scalar_one_or_none()
     if not session:
-        raise HTTPException(404, detail={"code": "RAIN-E100", "message": "Session not found"})
+        raise HTTPException(404, detail={"code": "RAIN-E200", "message": "Session not found"})
 
     cert_result = await db.execute(
         select(RainCert).where(RainCert.session_id == session_id)
     )
     cert = cert_result.scalar_one_or_none()
     if not cert:
-        raise HTTPException(404, detail={"code": "RAIN-E100", "message": "Certificate not yet issued"})
+        raise HTTPException(404, detail={"code": "RAIN-E200", "message": "Certificate not yet issued"})
 
     return {
         "cert_id": str(cert.id),

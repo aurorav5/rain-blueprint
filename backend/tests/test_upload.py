@@ -169,6 +169,11 @@ async def test_free_tier_upload_wav(client, jwt_keys):
     assert resp.status_code == 201
     body = resp.json()
     assert body["status"] == "analyzing"
+    # Free tier S3 isolation: verify no S3 upload was attempted
+    # (input_file_key is not exposed in SessionResponse — verified via mock_db)
+    assert mock_db.add.called
+    added_session = mock_db.add.call_args[0][0]
+    assert added_session.input_file_key is None, "Free tier must not write to S3"
 
 
 # ---------------------------------------------------------------------------

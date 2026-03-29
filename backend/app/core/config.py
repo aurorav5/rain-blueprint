@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings
+from pydantic import model_validator
 from typing import Literal
 
 
@@ -47,6 +48,15 @@ class Settings(BaseSettings):
     ACRCLOUD_HOST: str = ""
     ACRCLOUD_ACCESS_KEY: str = ""
     ACRCLOUD_ACCESS_SECRET: str = ""
+
+    @model_validator(mode="after")
+    def check_production_secrets(self) -> "Settings":
+        if self.RAIN_ENV == "production":
+            if self.JWT_SECRET_KEY == "dev-secret-key-do-not-use-in-production":
+                raise ValueError("JWT_SECRET_KEY must be set to a real secret in production")
+            if self.S3_ACCESS_KEY == "minioadmin":
+                raise ValueError("S3_ACCESS_KEY must not use dev defaults in production")
+        return self
 
     class Config:
         env_file = ".env"

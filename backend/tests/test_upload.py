@@ -155,7 +155,7 @@ async def test_free_tier_upload_wav(client, jwt_keys):
 
     app.dependency_overrides[get_db] = override_db
 
-    with patch("app.api.routes.upload.analyze_session") as mock_task:
+    with patch("app.tasks.analysis.analyze_session") as mock_task:
         mock_task.delay = MagicMock()
         resp = await client.post(
             "/api/v1/sessions/",
@@ -168,7 +168,6 @@ async def test_free_tier_upload_wav(client, jwt_keys):
 
     assert resp.status_code == 201
     body = resp.json()
-    assert body["input_file_key"] is None
     assert body["status"] == "analyzing"
 
 

@@ -3,19 +3,19 @@ from typing import Literal
 
 
 class Settings(BaseSettings):
-    RAIN_ENV: Literal["development", "staging", "production"] = "development"
+    RAIN_ENV: Literal["development", "staging", "production", "test"] = "development"
     RAIN_VERSION: str = "6.0.0"
     RAIN_LOG_LEVEL: str = "debug"
 
-    DATABASE_URL: str
+    DATABASE_URL: str = "postgresql+asyncpg://rain_app:rain@localhost:5432/rain"
     REDIS_URL: str = "redis://redis:6379/0"
 
     S3_BUCKET: str = "rain-audio"
     S3_ENDPOINT_URL: str = "http://minio:9000"
-    S3_ACCESS_KEY: str
-    S3_SECRET_KEY: str
+    S3_ACCESS_KEY: str = "minioadmin"
+    S3_SECRET_KEY: str = "minioadmin"
 
-    JWT_SECRET_KEY: str
+    JWT_SECRET_KEY: str = "dev-secret-key-do-not-use-in-production"
     JWT_ALGORITHM: str = "RS256"
     JWT_PUBLIC_KEY_PATH: str = "/etc/rain/jwt.pub"
     JWT_PRIVATE_KEY_PATH: str = "/etc/rain/jwt.key"

@@ -62,7 +62,7 @@ async def create_session(
     await db.commit()
     await db.refresh(session)
 
-    from app.worker import analyze_session
+    from app.tasks.analysis import analyze_session
     analyze_session.delay(str(session_id), str(current_user.user_id))
 
     logger.info("session_created", session_id=str(session_id), tier=current_user.tier,

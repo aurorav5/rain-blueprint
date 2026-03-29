@@ -10,6 +10,7 @@ celery_app = Celery(
         "app.tasks.render",
         "app.tasks.demucs",
         "app.tasks.certification",
+        "app.tasks.content_scan",
         "app.tasks.distribution",
         "app.tasks.aie",
     ],

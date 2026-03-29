@@ -19,17 +19,21 @@ const TABS = [
 export function TabBar() {
   return (
     <nav className="h-10 bg-rain-bg border-b border-rain-border flex items-center gap-1 px-3 overflow-x-auto shrink-0">
-      {TABS.map(({ to, label, icon: Icon, end }) => (
-        <NavLink
-          key={label}
-          to={to}
-          end={end}
-          className={({ isActive }) => `tab-3d flex items-center gap-1.5 ${isActive ? 'active' : ''}`}
-        >
-          <Icon size={12} />
-          <span>{label}</span>
-        </NavLink>
-      ))}
+      {TABS.map((tab) => {
+        const { to, label, icon: Icon } = tab
+        const end = 'end' in tab ? (tab as { end: boolean }).end : undefined
+        return (
+          <NavLink
+            key={label}
+            to={to}
+            end={end}
+            className={({ isActive }) => `tab-3d flex items-center gap-1.5 ${isActive ? 'active' : ''}`}
+          >
+            <Icon size={12} />
+            <span>{label}</span>
+          </NavLink>
+        )
+      })}
     </nav>
   )
 }

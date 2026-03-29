@@ -1,21 +1,23 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { UploadZone } from '../controls/UploadZone'
-import { Waveform } from '../visualizers/Waveform'
-import { Spectrum } from '../visualizers/Spectrum'
-import { Button } from '../common/Button'
 import { useAuthStore } from '@/stores/auth'
 import { useSessionStore } from '@/stores/session'
 import { renderLocal } from '@/hooks/useLocalRender'
 import { api, APIError } from '@/utils/api'
+import { UploadZone } from '../controls/UploadZone'
+import { SignalChain } from '../mastering/SignalChain'
+import { CreativeMacros } from '../mastering/CreativeMacros'
+import { MeteringPanel } from '../mastering/MeteringPanel'
+import { AnalogModeling } from '../mastering/AnalogModeling'
+import { MSProcessing } from '../mastering/MSProcessing'
+import { MasteringEngine } from '../mastering/MasteringEngine'
 
 const PLATFORMS = ['spotify', 'apple_music', 'youtube', 'tidal', 'amazon', 'soundcloud', 'cd', 'vinyl'] as const
 const GENRES = ['electronic', 'hiphop', 'rock', 'pop', 'classical', 'jazz', 'default'] as const
-
 type Platform = typeof PLATFORMS[number]
 type Genre = typeof GENRES[number]
 
 export default function MasteringTab() {
-  const { isAuthenticated, tier } = useAuthStore()
+  const { tier } = useAuthStore()
   const { setStatus, setOutputBuffer, status, outputBuffer, outputLufs } = useSessionStore()
 
   const [file, setFile] = useState<File | null>(null)
@@ -26,6 +28,15 @@ export default function MasteringTab() {
   const [sessionId, setSessionId] = useState<string | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
 
+  // Macro state
+  const [macros, setMacros] = useState({ brighten: 5.0, glue: 4.2, width: 3.8, punch: 6.1, warmth: 5.5 })
+  const [satMode, setSatMode] = useState('tape')
+  const [satDrive, setSatDrive] = useState(0.3)
+  const [msEnabled, setMsEnabled] = useState(false)
+  const [midGain, setMidGain] = useState(0)
+  const [sideGain, setSideGain] = useState(0)
+  const [stereoWidth, setStereoWidth] = useState(1.0)
+
   const isFree = tier === 'free'
 
   const handleFile = useCallback(async (f: File) => {
@@ -35,6 +46,8 @@ export default function MasteringTab() {
     setInputBuffer(buf)
     setStatus('idle')
     setOutputBuffer(null as unknown as ArrayBuffer)
+    // Also push to session store for transport bar
+    useSessionStore.getState().setInputBuffer(buf)
   }, [setStatus, setOutputBuffer])
 
   // WebSocket for paid-tier real-time updates
@@ -97,88 +110,107 @@ export default function MasteringTab() {
     }
   }, [inputBuffer, file, isFree, platform, genre, setStatus, setOutputBuffer])
 
-  const handleDownload = useCallback(async () => {
-    if (!sessionId) return
-    try {
-      window.location.href = `/api/v1/sessions/${sessionId}/download`
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Download failed')
-    }
-  }, [sessionId])
+  const handleReset = useCallback(() => {
+    setFile(null)
+    setInputBuffer(null)
+    setError(null)
+    setSessionId(null)
+    setStatus('idle')
+    setOutputBuffer(null as unknown as ArrayBuffer)
+    setMacros({ brighten: 5.0, glue: 4.2, width: 3.8, punch: 6.1, warmth: 5.5 })
+    setSatMode('tape')
+    setSatDrive(0.3)
+    setMsEnabled(false)
+    setMidGain(0)
+    setSideGain(0)
+    setStereoWidth(1.0)
+  }, [setStatus, setOutputBuffer])
 
-  const isProcessing = status === 'uploading' || status === 'analyzing' || status === 'processing'
-  const isComplete = status === 'complete'
+  const handleMacroChange = useCallback((key: string, value: number) => {
+    setMacros((prev) => ({ ...prev, [key]: value }))
+  }, [])
 
   return (
-    <div className="p-4 space-y-4 max-w-3xl">
-      <UploadZone onFileSelected={handleFile} disabled={isProcessing} />
+    <div className="p-4 space-y-3 max-w-[1600px] mx-auto">
+      {/* Row 0: Upload zone (collapsed when file loaded) */}
+      {!inputBuffer && (
+        <UploadZone onFileSelected={handleFile} disabled={status !== 'idle'} />
+      )}
 
+      {/* Row 0.5: Platform / Genre selectors */}
       {inputBuffer && (
-        <>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-rain-dim text-xs font-mono block mb-1">PLATFORM</label>
-              <select
-                value={platform}
-                onChange={(e) => setPlatform(e.target.value as Platform)}
-                disabled={isProcessing}
-                className="w-full bg-rain-dark border border-rain-border rounded px-2 py-1.5 text-rain-white text-xs font-mono"
-              >
-                {PLATFORMS.map(p => <option key={p} value={p}>{p.toUpperCase().replace('_', ' ')}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="text-rain-dim text-xs font-mono block mb-1">GENRE</label>
-              <select
-                value={genre}
-                onChange={(e) => setGenre(e.target.value as Genre)}
-                disabled={isProcessing}
-                className="w-full bg-rain-dark border border-rain-border rounded px-2 py-1.5 text-rain-white text-xs font-mono"
-              >
-                {GENRES.map(g => <option key={g} value={g}>{g.toUpperCase()}</option>)}
-              </select>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <label className="text-[9px] font-mono text-rain-dim">PLATFORM</label>
+            <select
+              value={platform}
+              onChange={(e) => setPlatform(e.target.value as Platform)}
+              className="bg-rain-surface border border-rain-border rounded px-2 py-1 text-rain-text text-[10px] font-mono"
+            >
+              {PLATFORMS.map(p => <option key={p} value={p}>{p.toUpperCase().replace('_', ' ')}</option>)}
+            </select>
           </div>
-
-          <Waveform inputLufs={null} outputLufs={outputLufs} />
-        </>
+          <div className="flex items-center gap-2">
+            <label className="text-[9px] font-mono text-rain-dim">GENRE</label>
+            <select
+              value={genre}
+              onChange={(e) => setGenre(e.target.value as Genre)}
+              className="bg-rain-surface border border-rain-border rounded px-2 py-1 text-rain-text text-[10px] font-mono"
+            >
+              {GENRES.map(g => <option key={g} value={g}>{g.toUpperCase()}</option>)}
+            </select>
+          </div>
+          {error && <span className="text-[9px] font-mono text-rain-red ml-auto">{error}</span>}
+        </div>
       )}
 
-      {error && <p className="text-rain-red text-xs font-mono">{error}</p>}
+      {/* Row 1: Mastering Engine control bar */}
+      <MasteringEngine
+        onMasterNow={() => void handleMaster()}
+        onReset={handleReset}
+        disabled={!inputBuffer}
+      />
 
-      {status !== 'idle' && !isComplete && (
-        <p className="text-rain-dim text-xs font-mono uppercase tracking-wider animate-pulse">
-          {status}...
-        </p>
-      )}
+      {/* Row 2: Signal Chain */}
+      <SignalChain />
 
+      {/* Row 3: Creative Macros + Metering */}
       <div className="flex gap-3">
-        <Button
-          onClick={() => void handleMaster()}
-          loading={isProcessing}
-          disabled={!inputBuffer || isProcessing}
-        >
-          MASTER
-        </Button>
-
-        {isComplete && (
-          isFree ? (
-            <span className="text-rain-dim text-xs font-mono self-center">
-              Upgrade to download
-            </span>
-          ) : (
-            <Button variant="ghost" onClick={() => void handleDownload()}>
-              DOWNLOAD
-            </Button>
-          )
-        )}
+        <CreativeMacros
+          brighten={macros.brighten}
+          glue={macros.glue}
+          width={macros.width}
+          punch={macros.punch}
+          warmth={macros.warmth}
+          onChange={handleMacroChange}
+        />
+        <MeteringPanel />
       </div>
 
-      {isComplete && <Spectrum />}
+      {/* Row 4: Analog Modeling + M/S Processing */}
+      <div className="flex gap-3">
+        <AnalogModeling
+          mode={satMode}
+          drive={satDrive}
+          onModeChange={setSatMode}
+          onDriveChange={setSatDrive}
+        />
+        <MSProcessing
+          enabled={msEnabled}
+          midGain={midGain}
+          sideGain={sideGain}
+          stereoWidth={stereoWidth}
+          onEnabledChange={setMsEnabled}
+          onMidGainChange={setMidGain}
+          onSideGainChange={setSideGain}
+          onStereoWidthChange={setStereoWidth}
+        />
+      </div>
 
+      {/* Free tier disclaimer */}
       {isFree && (
-        <p className="text-rain-dim text-xs font-mono">
-          Preview measurement — final render may differ slightly.
+        <p className="text-[9px] font-mono text-rain-muted text-center">
+          Preview measurement — final render may differ slightly. Upgrade for full resolution export.
         </p>
       )}
     </div>

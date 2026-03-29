@@ -82,8 +82,9 @@ export default function QCTab() {
             </thead>
             <tbody>
               {PLATFORMS.map(({ name, target, ceiling }) => {
-                const score = rainScore
-                  ? (rainScore as Record<string, number>)[name.toLowerCase().replace(' ', '_')] ?? null
+                const scores = rainScore as unknown as Record<string, number>
+                const score = scores
+                  ? scores[name.toLowerCase().replace(' ', '_')] ?? null
                   : null
                 const passed = score !== null && score >= 80
                 return (

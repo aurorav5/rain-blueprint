@@ -6,6 +6,7 @@ from uuid import UUID
 from app.core.database import get_db
 from app.api.dependencies import get_current_user, CurrentUser
 from app.models.session import Session as MasteringSession
+from app.models.cert import RainCert
 from app.schemas.session import SessionResponse
 import json
 import asyncio
@@ -82,3 +83,44 @@ async def session_status_ws(
             await asyncio.sleep(1)
     except WebSocketDisconnect:
         pass
+
+
+@router.get("/{session_id}/cert")
+async def get_rain_cert(
+    session_id: UUID,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """Returns the RAIN-CERT JSON + Ed25519 signature for a completed session."""
+    await db.execute(f"SELECT set_app_user_id('{current_user.user_id}'::uuid)")
+
+    result = await db.execute(
+        select(MasteringSession).where(
+            MasteringSession.id == session_id,
+            MasteringSession.user_id == current_user.user_id,
+        )
+    )
+    session = result.scalar_one_or_none()
+    if not session:
+        raise HTTPException(404, detail={"code": "RAIN-E100", "message": "Session not found"})
+
+    cert_result = await db.execute(
+        select(RainCert).where(RainCert.session_id == session_id)
+    )
+    cert = cert_result.scalar_one_or_none()
+    if not cert:
+        raise HTTPException(404, detail={"code": "RAIN-E100", "message": "Certificate not yet issued"})
+
+    return {
+        "cert_id": str(cert.id),
+        "session_id": str(cert.session_id),
+        "input_hash": cert.input_hash,
+        "output_hash": cert.output_hash,
+        "wasm_hash": cert.wasm_hash,
+        "model_version": cert.model_version,
+        "processing_params_hash": cert.processing_params_hash,
+        "content_scan_passed": cert.content_scan_passed,
+        "signature": cert.signature,
+        "signature_algorithm": "Ed25519",
+        "issued_at": cert.issued_at.isoformat(),
+    }

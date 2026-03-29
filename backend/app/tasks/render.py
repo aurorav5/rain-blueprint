@@ -108,8 +108,10 @@ async def _render_session_async(
 
             from app.tasks.certification import sign_rain_cert
             from app.tasks.aie import update_aie_profile
+            from app.tasks.content_scan import scan_content
             sign_rain_cert.delay(session_id, user_id)
             update_aie_profile.delay(session_id, user_id, mel.tolist(), params, genre)
+            scan_content.delay(session_id, user_id)
 
         except Exception as e:
             logger.error("render_failed", session_id=session_id, error=str(e), stage="render", user_id=user_id)

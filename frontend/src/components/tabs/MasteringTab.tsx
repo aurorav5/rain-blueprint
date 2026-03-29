@@ -14,7 +14,7 @@ const GENRES = ['electronic', 'hiphop', 'rock', 'pop', 'classical', 'jazz', 'def
 type Platform = typeof PLATFORMS[number]
 type Genre = typeof GENRES[number]
 
-export function MasteringTab() {
+export default function MasteringTab() {
   const { isAuthenticated, tier } = useAuthStore()
   const { setStatus, setOutputBuffer, status, outputBuffer, outputLufs } = useSessionStore()
 

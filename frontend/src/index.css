@@ -1,1 +1,372 @@
 @import "tailwindcss";
+
+/* ============================================
+   R∞N DESIGN SYSTEM — PRO AUDIO UI
+   ============================================ */
+
+/* Base */
+body {
+  background: #0D0B1A;
+  color: #E8E6F0;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #141225; }
+::-webkit-scrollbar-thumb { background: #2A2545; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #4A4565; }
+
+/* ============================================
+   3D KNOB COMPONENT
+   ============================================ */
+.knob-3d {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #2A2545, #141225 60%, #0D0B1A);
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.5),
+    0 1px 3px rgba(0,0,0,0.3),
+    inset 0 1px 2px rgba(255,255,255,0.08);
+  cursor: pointer;
+  user-select: none;
+  transition: box-shadow 0.2s;
+}
+
+.knob-3d:hover {
+  box-shadow:
+    0 4px 20px rgba(139,92,246,0.3),
+    0 1px 3px rgba(0,0,0,0.3),
+    inset 0 1px 2px rgba(255,255,255,0.12);
+}
+
+.knob-3d::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #1C1835, #0D0B1A);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.4), inset 0 -1px 2px rgba(255,255,255,0.05);
+}
+
+.knob-3d .knob-indicator {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  height: 12px;
+  background: linear-gradient(to bottom, #D946EF, #8B5CF6);
+  border-radius: 2px;
+  z-index: 2;
+  box-shadow: 0 0 6px rgba(217,70,239,0.6);
+}
+
+.knob-ring-track {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 3px solid #2A2545;
+}
+
+.knob-ring-value {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+}
+
+/* ============================================
+   3D TAB BUTTONS
+   ============================================ */
+.tab-3d {
+  position: relative;
+  padding: 8px 16px;
+  background: linear-gradient(180deg, #1C1835 0%, #141225 100%);
+  border: 1px solid #2A2545;
+  border-radius: 6px;
+  color: #7A7595;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.tab-3d:hover {
+  background: linear-gradient(180deg, #2A2545 0%, #1C1835 100%);
+  color: #E8E6F0;
+  transform: translateY(-1px);
+  box-shadow:
+    0 4px 8px rgba(0,0,0,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.tab-3d.active {
+  background: linear-gradient(180deg, #1C1835 0%, #141225 100%);
+  color: #E8E6F0;
+  border-color: #8B5CF6;
+  box-shadow:
+    0 0 12px rgba(139,92,246,0.3),
+    0 2px 4px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(139,92,246,0.2);
+}
+
+.tab-3d.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: linear-gradient(90deg, #8B5CF6, #D946EF, #F97316);
+  border-radius: 1px;
+  box-shadow: 0 0 8px rgba(217,70,239,0.5);
+}
+
+/* ============================================
+   METER BARS
+   ============================================ */
+.meter-bar {
+  width: 12px;
+  background: #141225;
+  border: 1px solid #2A2545;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.meter-bar-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, #4AFF8A, #AAFF00 40%, #FFB347 70%, #FF4444);
+  transition: height 0.15s ease;
+  border-radius: 1px;
+}
+
+/* ============================================
+   PANEL CARDS
+   ============================================ */
+.panel-card {
+  background: #141225;
+  border: 1px solid #2A2545;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.panel-card-header {
+  padding: 10px 16px;
+  border-bottom: 1px solid #2A2545;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-card-header::before {
+  content: '';
+  width: 3px;
+  height: 14px;
+  background: linear-gradient(to bottom, #8B5CF6, #D946EF);
+  border-radius: 2px;
+}
+
+.panel-card-body {
+  padding: 16px;
+}
+
+/* ============================================
+   SIGNAL CHAIN STAGE
+   ============================================ */
+.chain-stage {
+  padding: 6px 12px;
+  background: #141225;
+  border: 1px solid #2A2545;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #4A4565;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.chain-stage.completed {
+  background: #1C1835;
+  border-color: #4AFF8A;
+  color: #4AFF8A;
+  box-shadow: 0 0 8px rgba(74,255,138,0.15);
+}
+
+.chain-stage.active {
+  background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(217,70,239,0.1));
+  border-color: #D946EF;
+  color: #E8E6F0;
+  box-shadow: 0 0 12px rgba(217,70,239,0.25);
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(217,70,239,0.15); }
+  50% { box-shadow: 0 0 16px rgba(217,70,239,0.35); }
+}
+
+/* ============================================
+   RAIN SCORE GAUGE
+   ============================================ */
+.score-gauge {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.score-gauge svg {
+  transform: rotate(-90deg);
+}
+
+.score-gauge-track {
+  fill: none;
+  stroke: #2A2545;
+  stroke-width: 6;
+}
+
+.score-gauge-fill {
+  fill: none;
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s ease;
+}
+
+.score-gauge-value {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* ============================================
+   TRANSPORT BAR
+   ============================================ */
+.transport-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #1C1835, #141225);
+  border: 1px solid #2A2545;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7A7595;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.transport-btn:hover {
+  background: linear-gradient(180deg, #2A2545, #1C1835);
+  color: #E8E6F0;
+  transform: scale(1.05);
+}
+
+.transport-btn.playing {
+  background: linear-gradient(180deg, #8B5CF6, #6D28D9);
+  border-color: #8B5CF6;
+  color: white;
+  box-shadow: 0 0 12px rgba(139,92,246,0.4);
+}
+
+/* ============================================
+   SLIDER / RANGE CONTROL
+   ============================================ */
+.rain-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: #2A2545;
+  border-radius: 2px;
+  outline: none;
+}
+
+.rain-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8B5CF6, #D946EF);
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(139,92,246,0.4), 0 2px 4px rgba(0,0,0,0.3);
+  transition: transform 0.15s;
+}
+
+.rain-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* ============================================
+   R∞N LOGO
+   ============================================ */
+.rain-logo-r { color: #FF4444; }
+.rain-logo-inf {
+  background: linear-gradient(135deg, #8B5CF6, #D946EF, #F97316);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.rain-logo-n { color: #AAFF00; }
+
+/* ============================================
+   ANALOG UNIT CARD
+   ============================================ */
+.analog-unit {
+  padding: 10px 14px;
+  background: #141225;
+  border: 1px solid #2A2545;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.analog-unit:hover {
+  border-color: #4A4565;
+  background: #1C1835;
+}
+
+.analog-unit.selected {
+  border-color: #8B5CF6;
+  background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(217,70,239,0.05));
+  box-shadow: 0 0 12px rgba(139,92,246,0.2);
+}
+
+/* ============================================
+   UTILITIES
+   ============================================ */
+.text-gradient-infinity {
+  background: linear-gradient(135deg, #8B5CF6, #D946EF, #F97316);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.border-gradient {
+  border-image: linear-gradient(135deg, #8B5CF6, #D946EF, #F97316) 1;
+}

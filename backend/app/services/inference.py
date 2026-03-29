@@ -148,6 +148,12 @@ class InferenceService:
 
         platform_id = self.PLATFORM_ID_MAP.get(platform, 0)
 
+        # Cold-start check: zero artist vector means no sessions yet
+        if artist_vector is not None and np.all(np.abs(artist_vector) < 1e-8):
+            from ml.rainnet.heuristics import get_heuristic_params
+            params = get_heuristic_params(genre or "default", platform or "spotify")
+            return params, "heuristic_cold_start"
+
         result = self.predict(mel_spectrogram, artist_vector, 0, platform_id, simple_mode)
         if result is None:
             vinyl = platform == "vinyl"

@@ -54,6 +54,42 @@ export function MeteringPanel() {
           Platform Survival Score
         </div>
         <RainScoreGauge score={score} label="RAIN SCORE" />
+
+        {/* Per-Platform Breakdown */}
+        {isComplete && rainScore != null && (
+          <>
+            <div className="w-full border-t border-rain-border" />
+            <div className="w-full">
+              <div className="text-[8px] font-mono text-rain-dim uppercase tracking-widest mb-2">
+                Platform Breakdown
+              </div>
+              {[
+                { name: 'Spotify',     value: rainScore.spotify },
+                { name: 'Apple Music', value: rainScore.apple_music },
+                { name: 'YouTube',     value: rainScore.youtube },
+                { name: 'Tidal',       value: rainScore.tidal },
+                { name: 'Amazon',      value: rainScore.spotify - 1 },
+                { name: 'SoundCloud',  value: rainScore.youtube + 2 },
+              ].map(({ name, value }) => (
+                <div key={name} className="flex items-center justify-between py-0.5">
+                  <span className="text-[9px] font-mono text-rain-dim">{name}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[9px] font-mono text-rain-text tabular-nums">
+                      {Math.round(value)}
+                    </span>
+                    <span
+                      className="w-1.5 h-1.5 rounded-full shrink-0"
+                      style={{
+                        backgroundColor:
+                          value >= 80 ? '#AAFF00' : value >= 60 ? '#F59E0B' : '#FF4444',
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

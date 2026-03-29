@@ -4,13 +4,53 @@
    R∞N DESIGN SYSTEM — PRO AUDIO UI
    ============================================ */
 
+/* ============================================
+   CSS CUSTOM PROPERTIES — RAIN DESIGN TOKENS
+   (mirrors Aurora's var() system but Rain-branded)
+   ============================================ */
+:root {
+  /* Fonts — Rajdhani (UI labels) + Space Mono (tech/values) + DM Sans (body) */
+  --font-ui:   'Rajdhani', 'Segoe UI', sans-serif;
+  --font-mono: 'Space Mono', 'JetBrains Mono', 'Fira Code', monospace;
+  --font-body: 'DM Sans', 'Segoe UI', sans-serif;
+
+  /* Rain brand palette */
+  --rain-bg:       #0D0B1A;
+  --rain-surface:  #141225;
+  --rain-panel:    #1A1730;
+  --rain-border:   #2A2545;
+  --rain-purple:   #8B5CF6;
+  --rain-magenta:  #D946EF;
+  --rain-lime:     #AAFF00;
+  --rain-orange:   #F97316;
+  --rain-red:      #FF4444;
+  --rain-cyan:     #00D4FF;
+  --rain-text:     #E8E6F0;
+  --rain-dim:      #6B6884;
+  --rain-muted:    #4A4565;
+}
+
 /* Base */
 body {
-  background: #0D0B1A;
-  color: #E8E6F0;
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  background: var(--rain-bg);
+  color: var(--rain-text);
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
+}
+
+/* Use Rajdhani for all headings, labels, mono-style UI text */
+.font-ui, h1, h2, h3, h4, h5, h6,
+.tab-3d, .panel-card-header,
+button, select, label {
+  font-family: var(--font-ui);
+}
+
+/* Use Space Mono for all monospaced values, readouts, tags */
+.font-mono,
+code, pre,
+.text-\[9px\], .text-\[10px\], .text-xs {
+  font-family: var(--font-mono);
 }
 
 /* Scrollbar */

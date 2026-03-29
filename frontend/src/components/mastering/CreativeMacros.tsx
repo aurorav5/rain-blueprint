@@ -9,11 +9,39 @@ interface CreativeMacrosProps {
   onChange: (key: string, value: number) => void
 }
 
+const TENSION_PAIRS: { keys: [string, string]; message: string }[] = [
+  { keys: ['brighten', 'warmth'], message: 'High shelf + THD boost may cause harshness' },
+  { keys: ['glue', 'width'],     message: 'Heavy compression + wide stereo may cause instability' },
+  { keys: ['glue', 'punch'],     message: 'Bus compression + transient boost creates conflicting dynamics' },
+  { keys: ['warmth', 'punch'],   message: 'Saturation + transient emphasis may over-distort attacks' },
+]
+
 export function CreativeMacros({ brighten, glue, width, punch, warmth, onChange }: CreativeMacrosProps) {
+  const macroMap: Record<string, number> = { brighten, glue, width, punch, warmth }
+
+  const tensionWarning = TENSION_PAIRS.find(
+    ({ keys }) => (macroMap[keys[0]] ?? 0) > 7.0 && (macroMap[keys[1]] ?? 0) > 7.0
+  )
+
   return (
     <div className="panel-card flex-1">
       <div className="panel-card-header text-rain-text">Creative Macro System</div>
       <div className="panel-card-body">
+        {/* Tension warning banner */}
+        {tensionWarning && (
+          <div
+            className="flex items-center gap-2 px-3 py-2 rounded border mb-3 text-[9px] font-mono"
+            style={{
+              background: 'rgba(251,146,60,0.15)',
+              borderColor: 'rgba(251,146,60,0.4)',
+              color: '#FBB440',
+            }}
+          >
+            <span>⚠</span>
+            <span>{tensionWarning.message}</span>
+          </div>
+        )}
+
         <div className="flex justify-around flex-wrap gap-4">
           <MacroKnob
             label="BRIGHTEN"

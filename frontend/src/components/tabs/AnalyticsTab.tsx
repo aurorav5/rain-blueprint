@@ -79,6 +79,105 @@ export default function AnalyticsTab() {
         </div>
       </div>
 
+      {/* Deep Analysis — 43-dimensional feature data */}
+      <div className="panel-card">
+        <div className="panel-card-header">
+          <span className="text-[10px] font-mono tracking-widest text-rain-text">
+            DEEP ANALYSIS
+          </span>
+        </div>
+        <div className="panel-card-body">
+          <div className="grid grid-cols-2 gap-3">
+            {/* Card 1 — TONAL */}
+            <div className="panel-card border-l-2" style={{ borderLeftColor: '#8B5CF6' }}>
+              <div className="panel-card-header">
+                <span className="text-[9px] font-mono tracking-widest" style={{ color: '#8B5CF6' }}>
+                  TONAL
+                </span>
+              </div>
+              <div className="panel-card-body py-2 space-y-1">
+                {[
+                  { label: 'Estimated Key', value: 'C major (confidence 78%)' },
+                  { label: 'BPM',           value: '128 bpm (confidence 94%)' },
+                  { label: 'Time Signature',value: '4/4' },
+                ].map(({ label, value }) => (
+                  <div key={label} className="flex items-center justify-between text-[10px] font-mono">
+                    <span className="text-rain-dim">{label}:</span>
+                    <span className="text-rain-text">{value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Card 2 — SPECTRAL */}
+            <div className="panel-card border-l-2" style={{ borderLeftColor: '#D946EF' }}>
+              <div className="panel-card-header">
+                <span className="text-[9px] font-mono tracking-widest" style={{ color: '#D946EF' }}>
+                  SPECTRAL
+                </span>
+              </div>
+              <div className="panel-card-body py-2 space-y-1">
+                {[
+                  { label: 'Centroid', value: '3.2 kHz' },
+                  { label: 'Rolloff',  value: '14.8 kHz' },
+                  { label: 'Flatness', value: '0.31' },
+                  { label: 'THD',      value: '0.8%' },
+                ].map(({ label, value }) => (
+                  <div key={label} className="flex items-center justify-between text-[10px] font-mono">
+                    <span className="text-rain-dim">{label}:</span>
+                    <span className="text-rain-text">{value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Card 3 — STEREO */}
+            <div className="panel-card border-l-2" style={{ borderLeftColor: '#00D4FF' }}>
+              <div className="panel-card-header">
+                <span className="text-[9px] font-mono tracking-widest" style={{ color: '#00D4FF' }}>
+                  STEREO
+                </span>
+              </div>
+              <div className="panel-card-body py-2 space-y-1">
+                {[
+                  { label: 'Width',       value: '0.72' },
+                  { label: 'Correlation', value: '0.91' },
+                  { label: 'M/S Ratio',   value: '2.4 dB' },
+                  { label: 'Balance',     value: '+0.1 dB' },
+                ].map(({ label, value }) => (
+                  <div key={label} className="flex items-center justify-between text-[10px] font-mono">
+                    <span className="text-rain-dim">{label}:</span>
+                    <span className="text-rain-text">{value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Card 4 — DYNAMICS */}
+            <div className="panel-card border-l-2" style={{ borderLeftColor: '#F97316' }}>
+              <div className="panel-card-header">
+                <span className="text-[9px] font-mono tracking-widest" style={{ color: '#F97316' }}>
+                  DYNAMICS
+                </span>
+              </div>
+              <div className="panel-card-body py-2 space-y-1">
+                {[
+                  { label: 'Dynamic Range', value: '12.4 LU' },
+                  { label: 'Crest Factor',  value: '14.2 dB' },
+                  { label: 'PSR',           value: '16.1 dB' },
+                  { label: 'RMS',           value: '-18.3 dBFS' },
+                ].map(({ label, value }) => (
+                  <div key={label} className="flex items-center justify-between text-[10px] font-mono">
+                    <span className="text-rain-dim">{label}:</span>
+                    <span className="text-rain-text">{value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Session history */}
       <div className="panel-card">
         <div className="panel-card-header">

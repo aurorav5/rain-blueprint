@@ -35,6 +35,19 @@ class Settings(BaseSettings):
 
     FRONTEND_URL: str = "http://localhost:5173"
 
+    # Distribution
+    LABELGRID_API_KEY: str = ""
+    LABELGRID_API_BASE: str = "https://api.labelgrid.com/v1"
+    LABELGRID_SANDBOX: bool = True
+    ISRC_REGISTRANT_CODE: str = "ARC"
+    UPC_GS1_PREFIX: str = "000000"
+
+    # Content scan
+    AUDD_API_TOKEN: str = ""
+    ACRCLOUD_HOST: str = ""
+    ACRCLOUD_ACCESS_KEY: str = ""
+    ACRCLOUD_ACCESS_SECRET: str = ""
+
     class Config:
         env_file = ".env"
 

@@ -1,0 +1,29 @@
+{
+  "identifier": "com.arcovel.rain",
+  "productName": "RAIN",
+  "version": "6.0.0",
+  "build": {
+    "frontendDist": "../../frontend/dist",
+    "devUrl": "http://localhost:5173"
+  },
+  "app": {
+    "security": {
+      "csp": "default-src 'self' blob: data: tauri: 'unsafe-eval' 'unsafe-inline'"
+    },
+    "windows": [
+      {
+        "title": "R∞N",
+        "width": 1280,
+        "height": 800,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ]
+  },
+  "bundle": {
+    "active": true,
+    "icon": ["icons/icon.png"],
+    "resources": ["resources/**/*"],
+    "category": "Music"
+  }
+}

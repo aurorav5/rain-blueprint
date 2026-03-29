@@ -24,6 +24,7 @@ async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)) -> 
         password_hash=hash_password(req.password),
     )
     db.add(user)
+    await db.flush()  # flush user row so FK constraint is satisfied
 
     now = datetime.now(timezone.utc)
     sub = Subscription(

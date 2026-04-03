@@ -33,7 +33,10 @@ rain-dsp/build-wasm/
 *.p12
 .env.local
 .env.production
+.env.backup.*
 /etc/rain/
+.rain-keys/
+docker-compose.override.yml
 
 # IDE
 .vscode/

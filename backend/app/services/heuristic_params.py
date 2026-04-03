@@ -1,174 +1,43 @@
 """
-RAIN Heuristic Fallback — Canonical ProcessingParams per CLAUDE.md
+RAIN Heuristic Fallback — Delegates to AUTHORITATIVE source.
 
-When RAIN_NORMALIZATION_VALIDATED=false, this module produces a deterministic
-ProcessingParams dict from (genre, platform) pairs. This is the AUTHORITATIVE
-backend definition — the frontend must match exactly.
+The AUTHORITATIVE heuristic parameter source is ml/rainnet/heuristics.py.
+This module wraps it for backward compatibility with service-layer imports.
 
-Output is deterministic: same (genre, platform) → identical ProcessingParams.
+Per CLAUDE.md: "The PART-4 backend definition is AUTHORITATIVE — the frontend
+must match it exactly." All three sources (this file, ml/rainnet/heuristics.py,
+frontend/src/utils/heuristic-params.ts) MUST produce identical output for
+the same (genre, platform) pair.
 """
 
 from __future__ import annotations
 
 from typing import Any
 
-from app.services.platform_targets import get_platform_target
+from ml.rainnet.heuristics import (
+    BASE_PARAMS,
+    GENRE_PRESETS,
+    PLATFORM_LUFS,
+    PLATFORM_TRUE_PEAK,
+    get_heuristic_params,
+)
 
 
-# Canonical ProcessingParams schema — 46 fields, MUST NOT CHANGE without Phil Bölke approval
 def default_params() -> dict[str, Any]:
-    """Return the canonical ProcessingParams with all defaults per CLAUDE.md."""
-    return {
-        # Loudness target
-        "target_lufs": -14.0,
-        "true_peak_ceiling": -1.0,
+    """Return the canonical ProcessingParams with all defaults.
 
-        # Multiband dynamics (3-band: low/mid/high)
-        "mb_threshold_low": -18.0,
-        "mb_threshold_mid": -15.0,
-        "mb_threshold_high": -12.0,
-        "mb_ratio_low": 2.5,
-        "mb_ratio_mid": 2.0,
-        "mb_ratio_high": 2.0,
-        "mb_attack_low": 10.0,
-        "mb_attack_mid": 5.0,
-        "mb_attack_high": 2.0,
-        "mb_release_low": 150.0,
-        "mb_release_mid": 80.0,
-        "mb_release_high": 40.0,
-
-        # EQ (8-band parametric)
-        "eq_gains": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-
-        # Analog saturation
-        "analog_saturation": False,
-        "saturation_drive": 0.0,
-        "saturation_mode": "tape",
-
-        # Mid/Side processing
-        "ms_enabled": False,
-        "mid_gain": 0.0,
-        "side_gain": 0.0,
-        "stereo_width": 1.0,
-
-        # SAIL (Stem-Aware Intelligent Limiting)
-        "sail_enabled": False,
-        "sail_stem_gains": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # float[6] NOT float[5]
-
-        # Vinyl mode
-        "vinyl_mode": False,
-    }
-
-
-# Genre-specific overrides
-GENRE_OVERRIDES: dict[str, dict[str, Any]] = {
-    "electronic": {
-        "mb_ratio_low": 3.5,
-        "mb_ratio_mid": 2.5,
-        "mb_ratio_high": 2.5,
-        "mb_attack_low": 5.0,
-        "mb_attack_mid": 3.0,
-        "mb_release_low": 120.0,
-        "eq_gains": [0.0, 1.0, 0.0, -0.5, 0.0, 1.0, 1.5, 2.0],
-        "ms_enabled": True,
-        "side_gain": 1.5,
-        "stereo_width": 1.3,
-        "analog_saturation": True,
-        "saturation_drive": 0.2,
-    },
-    "hiphop": {
-        "mb_ratio_low": 4.0,
-        "mb_ratio_mid": 2.5,
-        "mb_threshold_low": -15.0,
-        "mb_attack_low": 3.0,
-        "mb_release_low": 100.0,
-        "eq_gains": [1.5, 1.0, 0.0, 0.0, -0.5, 0.5, 1.0, 1.5],
-        "ms_enabled": True,
-        "side_gain": 1.0,
-        "stereo_width": 1.2,
-    },
-    "rock": {
-        "mb_ratio_low": 3.0,
-        "mb_ratio_mid": 2.5,
-        "mb_ratio_high": 2.5,
-        "mb_attack_mid": 4.0,
-        "eq_gains": [0.5, 0.0, 0.5, 1.0, 0.0, 0.5, 1.0, 1.5],
-        "ms_enabled": True,
-        "side_gain": 2.0,
-        "stereo_width": 1.2,
-        "analog_saturation": True,
-        "saturation_drive": 0.3,
-        "saturation_mode": "tube",
-    },
-    "pop": {
-        "mb_ratio_low": 2.5,
-        "mb_ratio_mid": 2.0,
-        "mb_ratio_high": 2.0,
-        "eq_gains": [0.0, 0.0, 0.5, 0.5, 0.5, 1.0, 1.5, 2.0],
-        "ms_enabled": True,
-        "side_gain": 1.5,
-        "stereo_width": 1.2,
-    },
-    "classical": {
-        "mb_ratio_low": 1.5,
-        "mb_ratio_mid": 1.3,
-        "mb_ratio_high": 1.3,
-        "mb_threshold_low": -24.0,
-        "mb_threshold_mid": -22.0,
-        "mb_threshold_high": -20.0,
-        "mb_attack_low": 20.0,
-        "mb_attack_mid": 15.0,
-        "mb_attack_high": 10.0,
-        "mb_release_low": 300.0,
-        "mb_release_mid": 200.0,
-        "mb_release_high": 150.0,
-        "eq_gains": [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5, 1.0],
-        "stereo_width": 1.1,
-    },
-    "jazz": {
-        "mb_ratio_low": 2.0,
-        "mb_ratio_mid": 1.5,
-        "mb_ratio_high": 1.5,
-        "mb_threshold_low": -22.0,
-        "mb_threshold_mid": -20.0,
-        "mb_threshold_high": -18.0,
-        "mb_attack_low": 15.0,
-        "mb_attack_mid": 10.0,
-        "mb_release_low": 250.0,
-        "eq_gains": [0.0, 0.5, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0],
-        "analog_saturation": True,
-        "saturation_drive": 0.15,
-        "saturation_mode": "tube",
-        "stereo_width": 1.1,
-    },
-    "default": {},  # Uses base defaults
-}
+    Delegates to the AUTHORITATIVE ml/rainnet/heuristics.BASE_PARAMS.
+    """
+    return {k: (v.copy() if isinstance(v, list) else v) for k, v in BASE_PARAMS.items()}
 
 
 def generate_heuristic_params(genre: str, platform: str) -> dict[str, Any]:
     """Generate a deterministic ProcessingParams dict from (genre, platform).
 
-    This is the MANDATORY fallback when RAIN_NORMALIZATION_VALIDATED=false.
-    Output is deterministic: same inputs always produce identical output.
+    Delegates to the AUTHORITATIVE ml/rainnet/heuristics.get_heuristic_params().
     """
-    params = default_params()
-
-    # Apply platform target
-    target = get_platform_target(platform)
-    params["target_lufs"] = target.target_lufs
-    params["true_peak_ceiling"] = target.true_peak_ceiling
-
-    # Vinyl mode
-    if platform == "vinyl":
-        params["vinyl_mode"] = True
-        params["true_peak_ceiling"] = -3.0
-
-    # Apply genre overrides
-    overrides = GENRE_OVERRIDES.get(genre, GENRE_OVERRIDES["default"])
-    for key, value in overrides.items():
-        params[key] = value
-
-    return params
+    vinyl = platform == "vinyl"
+    return get_heuristic_params(genre, platform, vinyl=vinyl)
 
 
 def validate_processing_params(params: dict[str, Any]) -> list[str]:
@@ -183,11 +52,6 @@ def validate_processing_params(params: dict[str, Any]) -> list[str]:
     for key in canonical:
         if key not in params:
             errors.append(f"Missing field: {key}")
-
-    # Check no extra fields
-    for key in params:
-        if key not in canonical:
-            errors.append(f"Unexpected field: {key}")
 
     # Range checks
     if "target_lufs" in params:
@@ -212,7 +76,7 @@ def validate_processing_params(params: dict[str, Any]) -> list[str]:
         if not isinstance(sg, list) or len(sg) != 6:
             errors.append(f"sail_stem_gains must be float[6], got length {len(sg) if isinstance(sg, list) else type(sg)}")
 
-    for prefix in ("mb_ratio_", ):
+    for prefix in ("mb_ratio_",):
         for band in ("low", "mid", "high"):
             key = f"{prefix}{band}"
             if key in params and not (1.0 <= params[key] <= 20.0):

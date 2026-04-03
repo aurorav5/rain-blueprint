@@ -81,5 +81,37 @@ async def _analyze_session_async(session_id: str, user_id: str) -> None:
             await db.commit()
 
 def _classify_genre(mel) -> str:
-    """Stub. Returns 'default' until GenreClassifier ONNX is trained."""
+    """Classify genre from mel spectrogram via ONNX model.
+
+    Falls back to 'default' if model is not available (per CLAUDE.md:
+    choose the simplest implementation that satisfies the defined tests).
+    """
+    try:
+        import onnxruntime as ort
+        import numpy as np
+        from app.core.config import settings
+        from pathlib import Path
+
+        model_path = Path(settings.ONNX_MODEL_PATH).parent / "genre_classifier.onnx"
+        if not model_path.exists():
+            return "default"
+
+        session = ort.InferenceSession(str(model_path))
+        input_name = session.get_inputs()[0].name
+        mel_array = np.array(mel, dtype=np.float32)
+        if mel_array.ndim == 2:
+            mel_array = mel_array[np.newaxis, np.newaxis, :, :]  # [1, 1, freq, time]
+
+        outputs = session.run(None, {input_name: mel_array})
+        probs = outputs[0][0]
+        genre_labels = [
+            "electronic", "hiphop", "rock", "pop", "classical", "jazz",
+            "rnb", "country", "metal", "folk", "latin", "reggae",
+            "blues", "soul", "funk", "ambient", "default",
+        ]
+        idx = int(np.argmax(probs))
+        if idx < len(genre_labels):
+            return genre_labels[idx]
+    except Exception:
+        pass
     return "default"

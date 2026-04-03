@@ -54,8 +54,31 @@ void RainConnectProcessor::sendOscMetrics()
     oscSender.send("/rain/connect/penalty/apple",      0.3f);
 }
 
-void RainConnectProcessor::getStateInformation(juce::MemoryBlock& /*destData*/) {}
-void RainConnectProcessor::setStateInformation(const void* /*data*/, int /*sizeInBytes*/) {}
+void RainConnectProcessor::getStateInformation(juce::MemoryBlock& destData)
+{
+    // Persist connection state and OSC port so DAW can restore
+    juce::ValueTree state("RAINConnect");
+    state.setProperty("oscPort", OSC_PORT, nullptr);
+    state.setProperty("version", "1.0.0", nullptr);
+
+    juce::MemoryOutputStream stream(destData, true);
+    state.writeToStream(stream);
+}
+
+void RainConnectProcessor::setStateInformation(const void* data, int sizeInBytes)
+{
+    auto state = juce::ValueTree::readFromData(data, static_cast<size_t>(sizeInBytes));
+    if (state.isValid() && state.hasType("RAINConnect"))
+    {
+        int savedPort = state.getProperty("oscPort", OSC_PORT);
+        if (savedPort != OSC_PORT)
+        {
+            // Reconnect to saved port if different
+            oscSender.disconnect();
+            oscSender.connect("127.0.0.1", savedPort);
+        }
+    }
+}
 
 juce::AudioProcessorEditor* RainConnectProcessor::createEditor()
 {

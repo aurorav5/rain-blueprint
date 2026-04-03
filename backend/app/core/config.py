@@ -44,6 +44,10 @@ class Settings(BaseSettings):
     ISRC_REGISTRANT_CODE: str = "ARC"
     UPC_GS1_PREFIX: str = "000000"
 
+    # Security — signing keys
+    RAIN_CERT_SIGNING_KEY_PATH: str = "/etc/rain/cert.key"
+    RAIN_WATERMARK_KEY_PATH: str = "/etc/rain/wm.key"
+
     # Content scan
     AUDD_API_TOKEN: str = ""
     ACRCLOUD_HOST: str = ""

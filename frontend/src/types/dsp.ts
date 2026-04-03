@@ -47,6 +47,15 @@ export interface ProcessingParams {
 
   // Vinyl mode
   vinyl_mode: boolean;         // Default: false. Enables RIAA + SAIL vinyl chain
+
+  // Macro controls (7 dimensions — mapped to DSP by ClaudeService)
+  macro_brighten: number;      // 0.0–10.0. Default: 5.0. HF shelf + air presence
+  macro_glue: number;          // 0.0–10.0. Default: 5.0. Multiband compression cohesion
+  macro_width: number;         // 0.0–10.0. Default: 5.0. Stereo width via M/S
+  macro_punch: number;         // 0.0–10.0. Default: 5.0. Mid-band transient shaping
+  macro_warmth: number;        // 0.0–10.0. Default: 5.0. Low-shelf + analog saturation
+  macro_space: number;         // 0.0–10.0. Default: 5.0. Stereo decorrelation + depth
+  macro_repair: number;        // 0.0–10.0. Default: 0.0. Spectral repair + noise mgmt
 }
 
 /**
@@ -92,6 +101,15 @@ export const DEFAULT_PROCESSING_PARAMS: Readonly<ProcessingParams> = {
 
   // Vinyl mode
   vinyl_mode: false,
+
+  // Macro controls
+  macro_brighten: 5.0,
+  macro_glue: 5.0,
+  macro_width: 5.0,
+  macro_punch: 5.0,
+  macro_warmth: 5.0,
+  macro_space: 5.0,
+  macro_repair: 0.0,
 } as const;
 
 /** Saturation mode string union extracted from ProcessingParams. */

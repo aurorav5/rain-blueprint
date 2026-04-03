@@ -691,8 +691,17 @@ def master_audio(
     raw_audio, original_sr = load_audio(input_path)
     audio = normalize_input(raw_audio, original_sr)
 
-    # --- Stage 2: Analysis ---
+    # --- Stage 2: Analysis (including groove) ---
     analysis = analyze(audio, INTERNAL_SR, original_sr)
+
+    # Groove analysis — feeds into target state and enhancement
+    groove_engine = GrooveEngine(sample_rate=INTERNAL_SR)
+    groove = groove_engine.analyze(audio)
+    analysis.groove_score = groove.groove_score
+    analysis.swing_ratio = groove.swing_ratio
+    analysis.timing_variance = groove.timing_variance
+    analysis.transient_sharpness = groove.transient_sharpness
+    analysis.tempo_bpm = groove.tempo_bpm
 
     # --- Stage 3: EQ ---
     audio = apply_eq(audio, INTERNAL_SR, params)
@@ -703,7 +712,13 @@ def master_audio(
     # --- Stage 5: Stereo Widening ---
     audio = apply_stereo_widening(audio, INTERNAL_SR, params)
 
-    # --- Stage 6: Limiting ---
+    # --- Stage 6: Groove Enhancement ---
+    # Apply groove-aware transient shaping and dynamic tightening
+    genre = metadata.get("genre", "").lower() if metadata else ""
+    target_state = TargetState.from_genre(genre)
+    audio = groove_engine.enhance_groove(audio, groove, target_groove=target_state.groove)
+
+    # --- Stage 7: Limiting ---
     audio = apply_limiter(audio, INTERNAL_SR, params.loudness)
 
     # --- Stage 7: Output Preparation ---

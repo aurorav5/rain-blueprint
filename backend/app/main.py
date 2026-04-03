@@ -7,7 +7,7 @@ from app.core import metrics as _metrics_module  # noqa: F401 — registers all 
 from app.api.routes import (
     auth, upload, billing, sessions, download, aie,
     distribution, suno_import, score, whitelabel, workspaces, lora,
-    master, qc, separate, waitlist,
+    master, qc, separate, waitlist, assist,
 )
 
 app = FastAPI(
@@ -50,6 +50,7 @@ app.include_router(workspaces.router, prefix="/api/v1")
 app.include_router(lora.router, prefix="/api/v1")
 
 app.include_router(waitlist.router, prefix="/api/v1")
+app.include_router(assist.router, prefix="/api/v1")
 
 # Prototype mastering routes
 # WARNING: These routes have NO authentication. They use an in-memory session store

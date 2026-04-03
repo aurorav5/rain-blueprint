@@ -15,7 +15,7 @@ import type { ProcessingParams } from '../types/dsp'
 
 /**
  * Canonical ProcessingParams with all defaults per CLAUDE.md.
- * Must match backend default_params() exactly.
+ * Must match backend BASE_PARAMS in ml/rainnet/heuristics.py exactly.
  */
 function defaultParams(): ProcessingParams {
   return {
@@ -23,10 +23,10 @@ function defaultParams(): ProcessingParams {
     target_lufs: -14.0,
     true_peak_ceiling: -1.0,
 
-    // Multiband dynamics (3-band: low/mid/high)
-    mb_threshold_low: -18.0,
-    mb_threshold_mid: -15.0,
-    mb_threshold_high: -12.0,
+    // Multiband dynamics (3-band: low/mid/high) — match backend BASE_PARAMS
+    mb_threshold_low: -20.0,
+    mb_threshold_mid: -18.0,
+    mb_threshold_high: -16.0,
     mb_ratio_low: 2.5,
     mb_ratio_mid: 2.0,
     mb_ratio_high: 2.0,
@@ -57,94 +57,73 @@ function defaultParams(): ProcessingParams {
 
     // Vinyl mode
     vinyl_mode: false,
+
+    // Macro controls — match backend BASE_PARAMS
+    macro_brighten: 5.0,
+    macro_glue: 5.0,
+    macro_width: 5.0,
+    macro_punch: 5.0,
+    macro_warmth: 5.0,
+    macro_space: 5.0,
+    macro_repair: 0.0,
   }
 }
 
 /**
- * Genre-specific overrides. Must match backend GENRE_OVERRIDES exactly.
- * Keys and values are 1:1 with backend/app/services/heuristic_params.py.
+ * Genre-specific overrides. AUTHORITATIVE SOURCE: ml/rainnet/heuristics.py GENRE_PRESETS.
+ * Values here MUST be identical to the backend for the same genre.
+ * The backend uses a preset merge approach — these overrides produce the same final result.
  */
 const GENRE_OVERRIDES: Record<string, Partial<ProcessingParams>> = {
   electronic: {
-    mb_ratio_low: 3.5,
-    mb_ratio_mid: 2.5,
-    mb_ratio_high: 2.5,
-    mb_attack_low: 5.0,
-    mb_attack_mid: 3.0,
-    mb_release_low: 120.0,
-    eq_gains: [0.0, 1.0, 0.0, -0.5, 0.0, 1.0, 1.5, 2.0],
-    ms_enabled: true,
-    side_gain: 1.5,
-    stereo_width: 1.3,
-    analog_saturation: true,
-    saturation_drive: 0.2,
+    mb_threshold_low: -18.0, mb_threshold_mid: -16.0, mb_threshold_high: -14.0,
+    mb_ratio_low: 3.0, mb_ratio_mid: 2.5, mb_ratio_high: 2.0,
+    stereo_width: 1.3, analog_saturation: false,
+    macro_brighten: 5.0, macro_glue: 6.0, macro_width: 7.0,
+    macro_punch: 5.0, macro_warmth: 3.0, macro_space: 6.0, macro_repair: 0.0,
   },
   hiphop: {
-    mb_ratio_low: 4.0,
-    mb_ratio_mid: 2.5,
-    mb_threshold_low: -15.0,
-    mb_attack_low: 3.0,
-    mb_release_low: 100.0,
-    eq_gains: [1.5, 1.0, 0.0, 0.0, -0.5, 0.5, 1.0, 1.5],
-    ms_enabled: true,
-    side_gain: 1.0,
-    stereo_width: 1.2,
+    mb_threshold_low: -16.0, mb_threshold_mid: -14.0, mb_threshold_high: -14.0,
+    mb_ratio_low: 3.5, mb_ratio_mid: 2.5, mb_ratio_high: 2.0,
+    stereo_width: 1.1, analog_saturation: true, saturation_drive: 0.2,
+    macro_brighten: 4.0, macro_glue: 7.0, macro_width: 4.0,
+    macro_punch: 8.0, macro_warmth: 5.0, macro_space: 3.0, macro_repair: 0.0,
   },
   rock: {
-    mb_ratio_low: 3.0,
-    mb_ratio_mid: 2.5,
-    mb_ratio_high: 2.5,
-    mb_attack_mid: 4.0,
-    eq_gains: [0.5, 0.0, 0.5, 1.0, 0.0, 0.5, 1.0, 1.5],
-    ms_enabled: true,
-    side_gain: 2.0,
-    stereo_width: 1.2,
-    analog_saturation: true,
-    saturation_drive: 0.3,
-    saturation_mode: 'tube',
+    mb_threshold_low: -18.0, mb_threshold_mid: -16.0, mb_threshold_high: -12.0,
+    mb_ratio_low: 2.5, mb_ratio_mid: 2.0, mb_ratio_high: 2.5,
+    analog_saturation: true, saturation_drive: 0.15,
+    macro_brighten: 5.0, macro_glue: 5.0, macro_width: 5.0,
+    macro_punch: 7.0, macro_warmth: 6.0, macro_space: 4.0, macro_repair: 0.0,
   },
   pop: {
-    mb_ratio_low: 2.5,
-    mb_ratio_mid: 2.0,
-    mb_ratio_high: 2.0,
-    eq_gains: [0.0, 0.0, 0.5, 0.5, 0.5, 1.0, 1.5, 2.0],
-    ms_enabled: true,
-    side_gain: 1.5,
-    stereo_width: 1.2,
+    mb_threshold_low: -20.0, mb_threshold_mid: -18.0, mb_threshold_high: -16.0,
+    mb_ratio_low: 2.0, mb_ratio_mid: 2.0, mb_ratio_high: 1.8,
+    stereo_width: 1.1,
+    macro_brighten: 6.0, macro_glue: 5.0, macro_width: 5.0,
+    macro_punch: 5.0, macro_warmth: 4.0, macro_space: 5.0, macro_repair: 0.0,
   },
   classical: {
-    mb_ratio_low: 1.5,
-    mb_ratio_mid: 1.3,
-    mb_ratio_high: 1.3,
-    mb_threshold_low: -24.0,
-    mb_threshold_mid: -22.0,
-    mb_threshold_high: -20.0,
-    mb_attack_low: 20.0,
-    mb_attack_mid: 15.0,
-    mb_attack_high: 10.0,
-    mb_release_low: 300.0,
-    mb_release_mid: 200.0,
-    mb_release_high: 150.0,
-    eq_gains: [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5, 1.0],
-    stereo_width: 1.1,
+    mb_threshold_low: -24.0, mb_threshold_mid: -22.0, mb_threshold_high: -22.0,
+    mb_ratio_low: 1.5, mb_ratio_mid: 1.5, mb_ratio_high: 1.5,
+    stereo_width: 0.95,
+    macro_brighten: 3.0, macro_glue: 2.0, macro_width: 4.0,
+    macro_punch: 2.0, macro_warmth: 3.0, macro_space: 7.0, macro_repair: 0.0,
   },
   jazz: {
-    mb_ratio_low: 2.0,
-    mb_ratio_mid: 1.5,
-    mb_ratio_high: 1.5,
-    mb_threshold_low: -22.0,
-    mb_threshold_mid: -20.0,
-    mb_threshold_high: -18.0,
-    mb_attack_low: 15.0,
-    mb_attack_mid: 10.0,
-    mb_release_low: 250.0,
-    eq_gains: [0.0, 0.5, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0],
-    analog_saturation: true,
-    saturation_drive: 0.15,
-    saturation_mode: 'tube',
-    stereo_width: 1.1,
+    mb_threshold_low: -22.0, mb_threshold_mid: -20.0, mb_threshold_high: -20.0,
+    mb_ratio_low: 2.0, mb_ratio_mid: 1.8, mb_ratio_high: 1.5,
+    analog_saturation: true, saturation_drive: 0.1,
+    macro_brighten: 3.0, macro_glue: 4.0, macro_width: 4.0,
+    macro_punch: 3.0, macro_warmth: 6.0, macro_space: 6.0, macro_repair: 0.0,
   },
-  default: {}, // Uses base defaults — matches backend exactly
+  default: {
+    // Matches backend default preset exactly
+    mb_threshold_low: -20.0, mb_threshold_mid: -18.0, mb_threshold_high: -16.0,
+    mb_ratio_low: 2.5, mb_ratio_mid: 2.0, mb_ratio_high: 2.0,
+    macro_brighten: 5.0, macro_glue: 5.0, macro_width: 5.0,
+    macro_punch: 5.0, macro_warmth: 5.0, macro_space: 5.0, macro_repair: 0.0,
+  },
 }
 
 /**
@@ -213,15 +192,16 @@ export function generateHeuristicParams(
 ): ProcessingParams {
   const params = defaultParams()
 
-  // Apply platform target
+  // Apply platform target (matches backend get_heuristic_params logic)
   const target = PLATFORM_TARGETS[platform] ?? DEFAULT_PLATFORM
   params.target_lufs = target.target_lufs
-  params.true_peak_ceiling = target.true_peak_ceiling
 
-  // Vinyl mode
+  // Vinyl mode override — matches backend: vinyl gets -3.0 dBTP
   if (platform === 'vinyl') {
     params.vinyl_mode = true
     params.true_peak_ceiling = -3.0
+  } else {
+    params.true_peak_ceiling = target.true_peak_ceiling
   }
 
   // Apply genre overrides

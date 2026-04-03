@@ -58,14 +58,45 @@ GENRE_PRESETS: dict[str, dict] = {
 }
 
 PLATFORM_LUFS: dict[str, float] = {
+    # Tier 1 — Major streaming
     "spotify": -14.0,
+    "spotify_loud": -11.0,
     "apple_music": -16.0,
+    "apple_music_spatial": -16.0,
+    "dolby_atmos": -18.0,
     "youtube": -14.0,
+    "youtube_music": -14.0,
     "tidal": -14.0,
     "amazon_music": -14.0,
-    "tiktok": -14.0,
+    "amazon_ultra_hd": -14.0,
+    # Tier 2 — Secondary streaming
+    "deezer": -15.0,
     "soundcloud": -14.0,
+    "pandora": -14.0,
+    "tiktok": -14.0,
+    "instagram": -14.0,
+    # Tier 3 — Physical & broadcast
+    "cd": -9.0,
     "vinyl": -14.0,
+    "broadcast_ebu": -23.0,
+    "broadcast_atsc": -24.0,
+    # Tier 4 — Specialty
+    "audiobook_acx": -20.0,
+    "podcast": -16.0,
+    "game_audio": -18.0,
+    # Tier 5 — Regional
+    "qobuz": -14.0,
+    "anghami": -14.0,
+    "jiosaavn": -14.0,
+    "boomplay": -14.0,
+    "netease": -14.0,
+}
+
+PLATFORM_TRUE_PEAK: dict[str, float] = {
+    "amazon_music": -2.0,
+    "broadcast_atsc": -2.0,
+    "cd": -0.3,
+    "audiobook_acx": -3.0,
 }
 
 BASE_PARAMS: dict = {
@@ -111,6 +142,9 @@ def get_heuristic_params(
     preset = GENRE_PRESETS.get(genre or "default", GENRE_PRESETS["default"])
     params.update(preset)
     params["target_lufs"] = PLATFORM_LUFS.get(platform, -14.0)
-    params["true_peak_ceiling"] = -3.0 if vinyl else -1.0
+    if vinyl:
+        params["true_peak_ceiling"] = -3.0
+    else:
+        params["true_peak_ceiling"] = PLATFORM_TRUE_PEAK.get(platform, -1.0)
     params["vinyl_mode"] = vinyl
     return params

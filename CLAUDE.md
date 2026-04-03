@@ -79,13 +79,13 @@ These are immutable. Never deviate without explicit written approval from Phil B
 
 | Layer | Technology | Notes |
 |---|---|---|
-| Frontend | React 18 + Vite 6 + TypeScript 5 + Tailwind 4 | |
+| Frontend | React 19 + Vite 7 + TypeScript 5 + Tailwind 4 | |
 | Preview Engine | Web Audio API + WebGL2 | Local only |
 | Render Engine | RainDSP (C++20/WASM via Emscripten 3.1.50+) | Local only |
 | ML Inference | ONNX Runtime Web (WASM) | Local for base/tiny/nano |
 | Backend API | FastAPI 0.109+ (Python 3.12+) | |
-| Database | PostgreSQL 15+ with RLS | |
-| Cache/Queue | Redis 7+ | |
+| Database | PostgreSQL 18+ with RLS | |
+| Cache/Queue | Valkey 9+ (Redis-compatible) | |
 | Object Storage | S3-compatible (MinIO in dev) | |
 | ML Training | PyTorch 2.x | |
 | Source Separation | Demucs v4 htdemucs_6s (multi-pass, 12-stem) | Cloud GPU |

@@ -22,6 +22,7 @@ frontend/vite.config.js
 # C++
 rain-dsp/build/
 rain-dsp/build-wasm/
+rain-dsp/build_wasm/
 *.o
 *.a
 *.so

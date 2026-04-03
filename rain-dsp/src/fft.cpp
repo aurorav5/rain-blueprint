@@ -6,7 +6,7 @@
 #include <cmath>
 #include <complex>
 #include <vector>
-#include <stdexcept>
+#include <cstdlib>
 
 namespace rain {
 
@@ -15,9 +15,9 @@ void fft(std::vector<std::complex<double>>& x, bool inverse) {
     if (N == 0) return;
     if (N == 1) return;
 
-    // Verify power of 2
+    // Verify power of 2 — abort instead of throw (WASM builds with -fno-exceptions)
     if ((N & (N - 1)) != 0) {
-        throw std::invalid_argument("rain::fft: input size must be a power of 2");
+        std::abort();
     }
 
     // --- Bit-reversal permutation ---

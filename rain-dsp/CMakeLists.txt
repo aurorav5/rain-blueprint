@@ -47,7 +47,7 @@ if(BUILD_WASM)
 
     set_target_properties(rain_dsp_wasm PROPERTIES
         LINK_FLAGS "-sEXPORTED_FUNCTIONS=[${WASM_EXPORTED_FUNCTIONS_STR}] \
-                    -sEXPORTED_RUNTIME_METHODS=[ccall,cwrap,HEAPU8,UTF8ToString] \
+                    -sEXPORTED_RUNTIME_METHODS=[ccall,cwrap,UTF8ToString] \
                     -sALLOW_MEMORY_GROWTH=1 \
                     -sMAXIMUM_MEMORY=1073741824 \
                     -sMODULARIZE=1 \
@@ -60,7 +60,6 @@ if(BUILD_WASM)
     target_compile_options(rain_dsp_wasm PRIVATE
         -O3
         -msimd128
-        -ffast-math
         -fno-exceptions
     )
 else()

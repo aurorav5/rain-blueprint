@@ -1,98 +1,49 @@
-import { useAuthStore } from '@/stores/auth'
-import { useSessionStore } from '@/stores/session'
-import { Save, FolderOpen, HelpCircle, Search, Bell } from 'lucide-react'
+import { Play, Pause, Square, Circle } from 'lucide-react'
 
 export function TopBar() {
-  const { tier, clearAuth, userId } = useAuthStore()
-  const { status } = useSessionStore()
-
-  const isMastered = status === 'complete'
-
   return (
-    <header className="h-11 bg-rain-dark/80 backdrop-blur-md border-b border-rain-border/40 flex items-center justify-between px-4 shrink-0 z-20">
-      {/* Left: session status badges */}
-      <div className="flex items-center gap-2">
-        <span className="badge badge-outline">OFFLINE</span>
-        {isMastered && <span className="badge badge-green">MASTERED</span>}
-      </div>
-
-      {/* Center: technical badges */}
-      <div className="flex items-center gap-2">
-        <span className="badge badge-purple">CLAUDE OPUS 4.6</span>
-        <span className="badge badge-cyan">DEMUCS HTDEMUCS_6S</span>
-        <span className="badge badge-green">48KHZ &middot; STEREO</span>
-      </div>
-
-      {/* Right: actions */}
-      <div className="flex items-center gap-1.5">
-        <span className="badge badge-teal text-[9px]">API/WEBHOOK</span>
-
-        {/* Search — Cmd+K hint */}
-        <button
-          className="flex items-center gap-1.5 h-7 px-2 rounded border border-rain-border/30 bg-rain-surface/40 text-rain-dim hover:text-rain-text hover:border-rain-teal/20 transition-colors text-[10px] font-mono focus-visible:outline focus-visible:outline-2 focus-visible:outline-rain-teal/50"
-          title="Search (⌘K)"
-          aria-label="Open search"
-        >
-          <Search size={11} />
-          <span className="hidden sm:inline text-rain-muted">⌘K</span>
-        </button>
-
-        {/* Notification bell */}
-        <button
-          className="w-7 h-7 rounded flex items-center justify-center text-rain-dim hover:text-rain-text transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-rain-teal/50"
-          title="Notifications"
-          aria-label="Notifications"
-        >
-          <Bell size={13} />
-        </button>
-
-        <button
-          className="w-7 h-7 rounded flex items-center justify-center text-rain-dim hover:text-rain-text transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-rain-teal/50"
-          title="Help"
-          aria-label="Help"
-        >
-          <HelpCircle size={13} />
-        </button>
-
-        <div className="w-7 h-7 rounded-full bg-rain-teal/15 border border-rain-teal/25 flex items-center justify-center" aria-label="User avatar">
-          <span className="text-[10px] font-bold text-rain-teal">
-            {userId ? userId.charAt(0).toUpperCase() : 'U'}
-          </span>
+    <header className="h-14 bg-white/5 backdrop-blur-md border-b border-white/10 shrink-0 z-20 px-6 flex items-center justify-between shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
+      {/* Left: Clock and Transport */}
+      <div className="flex items-center gap-6">
+        <div className="font-mono text-xl tracking-[0.1em] font-light text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]">
+          20:22.882
         </div>
+        
+        <div className="flex items-center gap-2">
+          <button className="w-10 h-10 rounded-full crystal-glass flex items-center justify-center hover:bg-white/10 transition text-white hover:text-green-400">
+            <Play size={16} className="ml-1" fill="currentColor" />
+          </button>
+          <button className="w-10 h-10 rounded-full crystal-glass flex items-center justify-center hover:bg-white/10 transition text-white hover:text-yellow-400">
+            <Pause size={16} fill="currentColor" />
+          </button>
+          <button className="w-10 h-10 rounded-full crystal-glass flex items-center justify-center hover:bg-white/10 transition text-white hover:text-red-400">
+            <Square size={14} fill="currentColor" />
+          </button>
+          <button className="w-10 h-10 rounded-full crystal-glass flex items-center justify-center hover:bg-white/10 transition text-red-500 hover:text-red-400 drop-shadow-[0_0_8px_rgba(255,0,0,0.5)]">
+            <Circle size={14} fill="currentColor" />
+          </button>
+        </div>
+      </div>
 
-        <div className={`tier-badge ${tier} text-[9px]`}>{tier.toUpperCase()}</div>
+      {/* Center: R∞N text brand ID in a multi-colored gradient */}
+      <div className="absolute left-1/2 -translate-x-1/2 flex items-center">
+        <span className="roon-text-gradient text-2xl tracking-[0.2em]">R∞N</span>
+        <span className="text-[10px] uppercase font-semibold text-white/50 tracking-[0.3em] ml-3 mt-1.5 border-l border-white/20 pl-3">
+          AI Mastering Engine
+        </span>
+      </div>
 
-        <button
-          className="badge badge-outline hover:border-rain-teal/30 transition-colors cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-rain-teal/50"
-          title="Load session"
-          aria-label="Load session"
-        >
-          <FolderOpen size={10} /> LOAD
-        </button>
-        <button
-          className="badge badge-outline hover:border-rain-teal/30 transition-colors cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-rain-teal/50"
-          title="Save session"
-          aria-label="Save session"
-        >
-          <Save size={10} /> SAVE
-        </button>
-
-        <button
-          onClick={clearAuth}
-          className="w-7 h-7 rounded flex items-center justify-center text-rain-dim hover:text-rain-text transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-rain-teal/50"
-          title="Sign out"
-          aria-label="Sign out"
-        >
-          {/* Reuse Settings icon as the sign-out trigger, matching original behaviour */}
-          <svg
-            width="13" height="13" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <circle cx="12" cy="8" r="4" />
-            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-          </svg>
-        </button>
+      {/* Right: status pills */}
+      <div className="flex items-center gap-3">
+        <span className="px-3 py-1 font-mono text-[10px] font-bold rounded-full border border-gold/40 text-yellow-500 tracking-wider shadow-[inset_0_0_10px_rgba(255,215,0,0.2)] bg-black/20">
+          +ENTERPRISE
+        </span>
+        <span className="px-3 py-1 font-mono text-[10px] font-bold rounded-full border border-red-500/40 text-red-400 tracking-wider shadow-[inset_0_0_10px_rgba(255,68,68,0.2)] bg-black/20 animate-pulse">
+          +LIVE
+        </span>
+        <span className="px-3 py-1 font-mono text-[10px] font-bold rounded-full border border-cyan-500/40 text-cyan-400 tracking-wider shadow-[inset_0_0_10px_rgba(0,229,255,0.2)] bg-black/20">
+          +SAVE
+        </span>
       </div>
     </header>
   )

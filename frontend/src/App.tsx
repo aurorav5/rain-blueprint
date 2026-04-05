@@ -6,6 +6,7 @@ import LoginView from './views/LoginView'
 import RegisterView from './views/RegisterView'
 
 const LandingPage = lazy(() => import('@/views/LandingPage'))
+const AssistantView = lazy(() => import('@/views/AssistantView'))
 
 // Tab pages
 const MasteringTab = lazy(() => import('@/components/tabs/MasteringTab'))
@@ -58,6 +59,7 @@ export default function App() {
         <Route path="/" element={<PublicRoute><Suspense fallback={<TabFallback />}><LandingPage /></Suspense></PublicRoute>} />
         <Route path="/login" element={<LoginView />} />
         <Route path="/register" element={<RegisterView />} />
+        <Route path="/chat" element={<PrivateRoute><Suspense fallback={<TabFallback />}><AssistantView /></Suspense></PrivateRoute>} />
 
         <Route
           path="/app/*"
